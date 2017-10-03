@@ -1,4 +1,4 @@
-%module ycp
+%module ycp2
 
 %feature("autodoc", "3");
 
@@ -35,3 +35,5 @@ class YCPString;
 %include <ycp/YCPSymbol.h>
 %ignore YCPIntegerRep;
 %include <ycp/YCPInteger.h>
+%ignore YCPBooleanRep;
+%include <ycp/YCPBoolean.h>
