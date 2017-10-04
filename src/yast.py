@@ -7,6 +7,25 @@ from ycp2 import YCPInteger as Integer
 from ycp2 import YCPBoolean as Boolean
 from ycp2 import YCPFloat as Float
 
+class UISequencer:
+    def __init__(self, *cli_args):
+        self.cli_args = cli_args
+
+    def run(self, funcs):
+        Wizard.CreateDialog()
+
+        for func in funcs:
+            ret = func(*self.cli_args)
+            if type(ret) is tuple:
+                data, ret = ret
+                self.cli_args = (data,) + self.cli_args
+            if str(ret) == 'next':
+                continue
+            elif str(ret) == 'abort':
+                break
+
+        UI.CloseDialog()
+
 class Wizard:
     @staticmethod
     def GenericDialog(button_box):
