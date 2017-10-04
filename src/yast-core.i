@@ -8,7 +8,7 @@ using namespace std;
 %}
 
 %{
-#include <ycp-ui/YCP_UI.h>
+#include <YCP_UI.h>
 #include <ycp/YCPFloat.h>
 %}
 
@@ -24,7 +24,7 @@ class YCPInteger;
 class YCPString;
 
 %rename(UI) YCP_UI;
-%include <ycp-ui/YCP_UI.h>
+%include <YCP_UI.h>
 
 %ignore YCPTermRep;
 %include <ycp/YCPTerm.h>
