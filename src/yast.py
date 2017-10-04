@@ -9,9 +9,33 @@ from ycp2 import YCPFloat as Float
 
 class Wizard:
     @staticmethod
-    def CreateDialog():
-        args = List()
-        content = HBox(
+    def GenericDialog(button_box):
+        return VBox(
+            ReplacePoint(Empty(), ID='topmenu'),
+            HBox(
+                HSpacing(1),
+                VBox(
+                    VSpacing(0.2),
+                    HBox(
+                        Heading("Initializing ...", ID='title', opts=['hstretch']),
+                        HStretch(),
+                        ReplacePoint(Empty(), ID='relnotes_rp')
+                    ),
+                    VWeight(
+                        1,
+                        HVCenter(ReplacePoint(Empty(), ID='contents'), opts=['hvstretch'])
+                    )
+                ),
+                HSpacing(1)
+            ),
+            ReplacePoint(button_box, ID='rep_button_box'),
+            VSpacing(0.2),
+            ID='WizardDialog'
+        )
+
+    @staticmethod
+    def BackAbortNextButtonBox():
+        return HBox(
             HWeight(1, ReplacePoint(
                 PushButton('Help', ID='help', opts=['key_F1', 'helpButton']),
             ID='rep_help')),
@@ -28,10 +52,32 @@ class Wizard:
                 PushButton('Next', ID='next', opts=['key_F10', 'default']),
             ID='rep_next')),
         )
+
+    @staticmethod
+    def CreateDialog():
+        content = Wizard.GenericDialog(Wizard.BackAbortNextButtonBox())
+        args = List()
         opts = List()
         opts.append(Symbol('wizardDialog'))
 
         UI.OpenDialog(Term('opt', opts.base()), content)
+        UI.SetFocus(String('next'))
+
+    @staticmethod
+    def SetContentsButtons(title, contents, help_txt, back_txt, next_txt):
+        UI.SetApplicationTitle(String(title))
+        UI.ChangeWidget(Symbol('title'), Symbol('Value'), String(title))
+        UI.ReplaceWidget(Symbol('contents'), contents)
+        UI.ReplaceWidget(Symbol('rep_back'), PushButton(back_txt, ID='back', opts=['key_F8']))
+        UI.ReplaceWidget(Symbol('rep_next'), PushButton(next_txt, ID='next', opts=['key_F10', 'default']))
+
+    @staticmethod
+    def DisableBackButton():
+        pass
+
+    @staticmethod
+    def DisableNextButton():
+        pass
 
 class List:
     def __init__(self, items=[]):
@@ -811,7 +857,7 @@ def Node(label, expanded=False, children=[], ID=None):
     result.append(expanded)
     result.append(children)
 
-    return Term('Node', result.base())
+    return Term('item', result.base())
 
 def Tree(label, items, ID=None, opts=[]):
     """Scrollable tree selection
