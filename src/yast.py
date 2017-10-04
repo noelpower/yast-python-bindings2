@@ -167,7 +167,7 @@ def Frame(label, child, ID=None, opts=[]):
 
     return Term('Frame', result.base())
 
-def HBox(*children):
+def HBox(*children, **kwargs):
     """Generic layout: Arrange widgets horizontally
 
     Synopsis
@@ -177,9 +177,22 @@ def HBox(*children):
     list children  children widgets
 
     """
-    return Term('HBox', List(list(children)).base())
+    result = List()
+    for key in kwargs:
+        if key is 'ID':
+            result.append(Term('id', List([Symbol(kwargs[key])]).base()))
+        elif key is 'opts':
+            l = List()
+            for opt in opts:
+                l.append(Symbol(opt))
+            result.append(Term('opt', l.base()))
+        else:
+            raise SyntaxError, 'Invalid keyword argument %s' % key
+    result.extend(list(children))
 
-def VBox(*children):
+    return Term('HBox', result.base())
+
+def VBox(*children, **kwargs):
     """Generic layout: Arrange widgets vertically
 
     Synopsis
@@ -189,7 +202,20 @@ def VBox(*children):
     list children  children widgets
 
     """
-    return Term('VBox', List(list(children)).base())
+    result = List()
+    for key in kwargs:
+        if key is 'ID':
+            result.append(Term('id', List([Symbol(kwargs[key])]).base()))
+        elif key is 'opts':
+            l = List()
+            for opt in opts:
+                l.append(Symbol(opt))
+            result.append(Term('opt', l.base()))
+        else:
+            raise SyntaxError, 'Invalid keyword argument %s' % key
+    result.extend(list(children))
+
+    return Term('VBox', result.base())
 
 def HSpacing(size=None):
     """Fixed size empty space for layout
