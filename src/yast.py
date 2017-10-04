@@ -296,6 +296,22 @@ def HWeight(weight, child):
     result.append(child)
     return Term('HWeight', result.base())
 
+def VWeight(weight, child):
+    """Control relative size of layouts
+
+    Synopsis
+    VWeight ( integer weight, term child );
+
+    Parameters
+    integer weight  the new weight of the child widget
+    term child  the child widget
+
+    """
+    result = List()
+    result.append(weight)
+    result.append(child)
+    return Term('VWeight', result.base())
+
 def InputField(label, defaulttext=None, ID=None, opts=[]):
     """Input field
 
