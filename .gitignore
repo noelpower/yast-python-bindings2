@@ -99,3 +99,31 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# autoconf/libtool
+Makefile.in
+Makefile
+config.guess
+config.status
+config.sub
+configure
+aclocal.m4
+ar-lib
+autom4te.cache/
+compile
+depcomp
+install-sh
+libtool
+ltmain.sh
+m4/
+missing
+py-compile
+.deps
+.libs
+
+# proj files
+_ycp2.la
+_ycp2_la*
+yast-core_wrap.cxx
+ycp2.py
+
