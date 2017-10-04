@@ -69,7 +69,7 @@ def ButtonBox(buttons, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -97,7 +97,7 @@ def ComboBox(label, items=[], ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -129,7 +129,7 @@ def DumbTab(tabs, contents, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -156,7 +156,7 @@ def Frame(label, child, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -285,7 +285,7 @@ def InputField(label, defaulttext=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -315,7 +315,7 @@ def TextEntry(label, defaulttext=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -345,7 +345,7 @@ def Password(label, defaulttext=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -373,7 +373,7 @@ def Label(label, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -399,7 +399,7 @@ def Heading(label, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -424,7 +424,7 @@ def Left(child, pixmap=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -451,7 +451,7 @@ def Right(child, pixmap=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -478,7 +478,7 @@ def Top(child, pixmap=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -505,7 +505,7 @@ def Bottom(child, pixmap=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -532,7 +532,7 @@ def HCenter(child, pixmap=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -559,7 +559,7 @@ def VCenter(child, pixmap=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -586,7 +586,7 @@ def HVCenter(child, pixmap=None, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -668,7 +668,7 @@ def PushButton(label, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -689,7 +689,7 @@ def ReplacePoint(child, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         for opt in opts:
             l = List()
@@ -716,7 +716,7 @@ def RichText(text, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -741,7 +741,7 @@ def Table(header, items=[], ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
@@ -761,7 +761,7 @@ def Table(header, items=[], ID=None, opts=[]):
 def Node(label, expanded=False, children=[], ID=None):
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     result.append(label)
     result.append(expanded)
     result.append(children)
@@ -786,7 +786,7 @@ def Tree(label, items, ID=None, opts=[]):
     """
     result = List()
     if ID is not None:
-        result.append(Term('id', List([String(ID)]).base()))
+        result.append(Term('id', List([Symbol(ID)]).base()))
     if opts is not None:
         l = List()
         for opt in opts:
