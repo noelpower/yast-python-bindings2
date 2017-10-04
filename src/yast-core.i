@@ -9,6 +9,7 @@ using namespace std;
 
 %{
 #include <ycp-ui/YCP_UI.h>
+#include <ycp/YCPFloat.h>
 %}
 
 /* %typemap(in) const YCPString& {
@@ -37,3 +38,5 @@ class YCPString;
 %include <ycp/YCPInteger.h>
 %ignore YCPBooleanRep;
 %include <ycp/YCPBoolean.h>
+%ignore YCPFloatRep;
+%include <ycp/YCPFloat.h>

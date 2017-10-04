@@ -5,6 +5,7 @@ from ycp2 import YCPString as String
 from ycp2 import YCPTerm as Term
 from ycp2 import YCPInteger as Integer
 from ycp2 import YCPBoolean as Boolean
+from ycp2 import YCPFloat as Float
 
 class Wizard:
     @staticmethod
@@ -47,6 +48,8 @@ class List:
             self.l.push_back(Integer(item))
         elif type(item) is bool:
             self.l.push_back(Boolean(item))
+        elif type(item) is float:
+            self.l.push_back(Float(item))
         else:
             self.l.push_back(item)
 
