@@ -79,7 +79,7 @@ class Wizard:
         opts = List()
         opts.append(Symbol('wizardDialog'))
 
-        UI.OpenDialog(Term('opt', opts.base()), content)
+        UI.OpenDialog(content, Term('opt', opts.base()))
         UI.SetFocus('next')
 
     @staticmethod

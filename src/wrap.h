@@ -30,7 +30,7 @@ public:
     static void 	MakeScreenShot			( const string & filename );
     static void 	NormalCursor			();
     static bool 	OpenContextMenu			( const YCPTerm & term );
-    static bool 	OpenDialog			( const YCPTerm & opts, const YCPTerm & dialogTerm );
+    static bool 	OpenDialog			( const YCPTerm & dialogTerm, const YCPTerm & opts = YCPNull() );
     static void 	OpenUI				();
     static void 	PlayMacro			( const string & filename );
     static void 	PostponeShortcutCheck		();

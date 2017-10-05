@@ -77,7 +77,7 @@ bool UI::OpenContextMenu(const YCPTerm & term) {
 	return YCP_UI::OpenContextMenu(term)->value();
 }
 
-bool UI::OpenDialog(const YCPTerm & opts, const YCPTerm & dialogTerm) {
+bool UI::OpenDialog(const YCPTerm & dialogTerm, const YCPTerm & opts) {
 	return YCP_UI::OpenDialog(opts, dialogTerm)->value();
 }
 
