@@ -63,6 +63,6 @@ public:
     static YCPValue	SetReleaseNotes			( const YCPMap & relnotes );
     static YCPValue	SetProductLogo			( const bool & show_logo);
     static YCPValue	SetApplicationIcon      	( const string & icon);
-    static YCPValue	SetApplicationTitle      	( const string & text);
+/*    static YCPValue	SetApplicationTitle      	( const string & text); */
 
 };

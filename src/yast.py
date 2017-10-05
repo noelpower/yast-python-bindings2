@@ -84,7 +84,7 @@ class Wizard:
 
     @staticmethod
     def SetContentsButtons(title, contents, help_txt, back_txt, next_txt):
-        UI.SetApplicationTitle(title)
+        #UI.SetApplicationTitle(title)
         UI.ChangeWidget('title', 'Value', String(title))
         UI.ReplaceWidget('contents', contents)
         UI.ReplaceWidget('rep_back', PushButton(back_txt, ID='back', opts=['key_F8']))

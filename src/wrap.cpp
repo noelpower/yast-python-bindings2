@@ -203,7 +203,7 @@ YCPValue UI::SetApplicationIcon(const string & icon) {
 	return YCP_UI::SetApplicationIcon(YCPString(icon));
 }
 
-YCPValue UI::SetApplicationTitle(const string & text) {
+/* YCPValue UI::SetApplicationTitle(const string & text) {
 	return YCP_UI::SetApplicationTitle(YCPString(text));
-}
+} */
 
