@@ -8,13 +8,10 @@ using namespace std;
 %}
 
 %{
-#include <YCP_UI.h>
+/* #include <YCP_UI.h> */
 #include <ycp/YCPFloat.h>
+#include "wrap.h"
 %}
-
-/* %typemap(in) const YCPString& {
-    $1 = YCPString($input);
-} */
 
 %feature("valuewrapper") YCPBoolean;
 class YCPBoolean;
@@ -23,8 +20,8 @@ class YCPInteger;
 %feature("valuewrapper") YCPString;
 class YCPString;
 
-%rename(UI) YCP_UI;
-%include <YCP_UI.h>
+/* %rename(UI) YCP_UI; */
+/* %include <YCP_UI.h> */
 
 %ignore YCPTermRep;
 %include <ycp/YCPTerm.h>
@@ -40,3 +37,4 @@ class YCPString;
 %include <ycp/YCPBoolean.h>
 %ignore YCPFloatRep;
 %include <ycp/YCPFloat.h>
+%include "wrap.h"

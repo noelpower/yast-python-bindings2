@@ -80,15 +80,15 @@ class Wizard:
         opts.append(Symbol('wizardDialog'))
 
         UI.OpenDialog(Term('opt', opts.base()), content)
-        UI.SetFocus(String('next'))
+        UI.SetFocus('next')
 
     @staticmethod
     def SetContentsButtons(title, contents, help_txt, back_txt, next_txt):
-        UI.SetApplicationTitle(String(title))
-        UI.ChangeWidget(Symbol('title'), Symbol('Value'), String(title))
-        UI.ReplaceWidget(Symbol('contents'), contents)
-        UI.ReplaceWidget(Symbol('rep_back'), PushButton(back_txt, ID='back', opts=['key_F8']))
-        UI.ReplaceWidget(Symbol('rep_next'), PushButton(next_txt, ID='next', opts=['key_F10', 'default']))
+        UI.SetApplicationTitle(title)
+        UI.ChangeWidget('title', 'Value', String(title))
+        UI.ReplaceWidget('contents', contents)
+        UI.ReplaceWidget('rep_back', PushButton(back_txt, ID='back', opts=['key_F8']))
+        UI.ReplaceWidget('rep_next', PushButton(next_txt, ID='next', opts=['key_F10', 'default']))
 
     @staticmethod
     def DisableBackButton():
@@ -96,6 +96,10 @@ class Wizard:
 
     @staticmethod
     def DisableNextButton():
+        pass
+
+    @staticmethod
+    def EnableNextButton():
         pass
 
 class List:
