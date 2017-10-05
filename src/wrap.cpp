@@ -94,7 +94,12 @@ void UI::PostponeShortcutCheck() {
 }
 
 string UI::QueryWidget(const string & widgetId, const string & property) {
-	return YCP_UI::QueryWidget(YCPSymbol(widgetId)->asValue(), YCPSymbol(property)->asValue())->asSymbol()->symbol();
+	YCPValue val = YCP_UI::QueryWidget(YCPSymbol(widgetId)->asValue(), YCPSymbol(property)->asValue());
+	if (val->isSymbol())
+		return val->asSymbol()->symbol();
+	else if (val->isString())
+		return val->asString()->value();
+	return "";
 }
 
 void UI::RecalcLayout() {
@@ -158,7 +163,12 @@ bool UI::WidgetExists(const string & widgetId) {
 }
 
 string UI::UserInput() {
-	return YCP_UI::UserInput()->asSymbol()->symbol();
+	YCPValue val = YCP_UI::UserInput();
+	if (val->isSymbol())
+		return val->asSymbol()->symbol();
+	else if (val->isString())
+		return val->asString()->value();
+	return "";
 }
 
 string UI::TimeoutUserInput(const int & timeout) {

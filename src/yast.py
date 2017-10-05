@@ -102,11 +102,15 @@ class Wizard:
     def EnableNextButton():
         pass
 
+    @staticmethod
+    def DisableAbortButton():
+        pass
+
 class List:
     def __init__(self, items=[]):
         self.l = YCPList()
         for item in items:
-            self.l.push_back(item)
+            self.append(item)
 
     def append(self, item):
         if type(item) is list:
@@ -119,8 +123,12 @@ class List:
             self.l.push_back(Boolean(item))
         elif type(item) is float:
             self.l.push_back(Float(item))
-        else:
+        elif type(item) is type(self):
+            self.l.push_back(item.base())
+        elif type(item) in [Term, Symbol, String, Integer, Boolean, Float, YCPList]:
             self.l.push_back(item)
+        else:
+            raise SyntaxError, 'Type of value "%s" unrecognized' % item
 
     def extend(self, items):
         for item in items:
@@ -865,7 +873,9 @@ def Table(header, items=[], ID=None, opts=[]):
     contents = List()
     for item in items:
         if type(item) is list:
-            contents.append(Term('item', Term('id', String(item[0])), List(list(item[1])).base()))
+            values = [Term('id', List([String(item[0])]).base())]
+            values.extend(list(item[1]))
+            contents.append(Term('item', List(values).base()))
         else:
             contents.append(Term('item', List(list(item)).base()))
     result.append(contents.base())
