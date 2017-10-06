@@ -6,7 +6,7 @@ python_PYTHON = ycp2.py yast.py
 
 pyexec_LTLIBRARIES = _ycp2.la
 
-_ycp2_la_SOURCES = yast-core_wrap.cxx wrap.cpp yast-core.i
+_ycp2_la_SOURCES = yast-core_wrap.cxx wrap.cpp yast.cpp yast-core.i
 
 _ycp2_la_LDFLAGS = -module ${PYTHON_LDFLAGS}
 
@@ -18,5 +18,7 @@ $(libpy2UI):
 _ycp2_la_LIBADD = -L$(builddir) -lpy2UI
 
 _ycp2_la_CPPFLAGS = -I/usr/include/YaST2 ${PYTHON_CPPFLAGS}
+
+AM_CXXFLAGS = -DY2LOG=\"Python\"
 
 CLEANFILES = ycp2.py yast-core_wrap.cxx
