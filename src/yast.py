@@ -7,6 +7,8 @@ from ycp2 import YCPInteger as Integer
 from ycp2 import YCPBoolean as Boolean
 from ycp2 import YCPFloat as Float
 from ycp2 import Id, Opt
+from ycp2 import Wizard
+from ycp2 import init_ui
 
 class UISequencer:
     def __init__(self, *cli_args):
@@ -26,82 +28,6 @@ class UISequencer:
                 break
 
         UI.CloseDialog()
-
-class Wizard:
-    @staticmethod
-    def GenericDialog(button_box):
-        return VBox(
-            Id('WizardDialog'),
-            ReplacePoint(Id('topmenu'), Empty()),
-            HBox(
-                HSpacing(1),
-                VBox(
-                    VSpacing(0.2),
-                    HBox(
-                        Heading(Id('title'), Opt('hstretch'), "Initializing ..."),
-                        HStretch(),
-                        ReplacePoint(Id('relnotes_rp'), Empty())
-                    ),
-                    VWeight(
-                        1,
-                        HVCenter(Opt('hvstretch'), ReplacePoint(Id('contents'), Empty()))
-                    )
-                ),
-                HSpacing(1)
-            ),
-            ReplacePoint(Id('rep_button_box'), button_box),
-            VSpacing(0.2)
-        )
-
-    @staticmethod
-    def BackAbortNextButtonBox():
-        return HBox(
-            HWeight(1, ReplacePoint(Id('rep_help'),
-                PushButton(Id('help'), Opt('key_F1', 'helpButton'), 'Help')
-            )),
-            HStretch(),
-            HWeight(1, ReplacePoint(Id('rep_back'),
-                PushButton(Id('back'), Opt('key_F8'), 'Back')
-            )),
-            HStretch(),
-            ReplacePoint(Id('rep_abort'),
-                PushButton(Id('abort'), Opt('key_F9'), 'Abort')
-            ),
-            HStretch(),
-            HWeight(1, ReplacePoint(Id('rep_next'),
-                PushButton(Id('next'), Opt('key_F10', 'default'), 'Next')
-            )),
-        )
-
-    @staticmethod
-    def CreateDialog():
-        content = Wizard.GenericDialog(Wizard.BackAbortNextButtonBox())
-        UI.OpenDialog(content, Opt('wizardDialog'))
-        UI.SetFocus('next')
-
-    @staticmethod
-    def SetContentsButtons(title, contents, help_txt, back_txt, next_txt):
-        #UI.SetApplicationTitle(title)
-        UI.ChangeWidget('title', 'Value', String(title))
-        UI.ReplaceWidget('contents', contents)
-        UI.ReplaceWidget('rep_back', PushButton(Id('back'), Opt('key_F8'), back_txt))
-        UI.ReplaceWidget('rep_next', PushButton(Id('next'), Opt('key_F10', 'default'), next_txt))
-
-    @staticmethod
-    def DisableBackButton():
-        pass
-
-    @staticmethod
-    def DisableNextButton():
-        pass
-
-    @staticmethod
-    def EnableNextButton():
-        pass
-
-    @staticmethod
-    def DisableAbortButton():
-        pass
 
 def ytype(item):
     if type(item) is list:

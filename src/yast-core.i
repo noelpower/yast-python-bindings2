@@ -11,6 +11,7 @@ using namespace std;
 /* #include <YCP_UI.h> */
 #include <ycp/YCPFloat.h>
 #include "wrap.h"
+#include "yast.h"
 %}
 
 %feature("valuewrapper") YCPBoolean;
@@ -39,4 +40,5 @@ class YCPString;
 %include <ycp/YCPFloat.h>
 %varargs(25, char * opt = NULL) Opt;
 %include "wrap.h"
+%include "yast.h"
 
