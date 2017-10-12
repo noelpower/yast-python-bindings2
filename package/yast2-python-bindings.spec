@@ -33,6 +33,7 @@ BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  make
 BuildRequires:  g++
+BuildRequires:  python-devel
 
 Requires:       yast2-ycp-ui-bindings
 Requires:	    yast2-core
