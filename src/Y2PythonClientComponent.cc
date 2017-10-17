@@ -57,10 +57,13 @@ YCPValue callClient(const string& client)
 {
     FILE *fp = fopen(client.c_str(), "r");
     int res = 0;
+    char *arg1 = (char*)client.c_str();
     if (fp == NULL) {
         return YCPBoolean(false);
     }
+
     Py_Initialize();
+    PySys_SetArgv(1, &arg1);
     res = PyRun_SimpleFile(fp, client.c_str());
     Py_Finalize();
     fclose(fp);
