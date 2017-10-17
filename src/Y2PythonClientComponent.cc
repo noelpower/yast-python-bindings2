@@ -33,11 +33,13 @@ Y2PythonClientComponent* Y2PythonClientComponent::_instance = NULL;
 
 Y2PythonClientComponent::Y2PythonClientComponent()
 {
+  std::cerr << "####  Y2PythonClientComponent::Y2PythonClientComponent() ctor" << std::endl;
 }
 
 Y2PythonClientComponent::~Y2PythonClientComponent()
 {
   y2debug( "Destroying Y2PythonClientComponent" );
+  std::cerr << "####  Y2PythonClientComponent::Y2PythonClientComponent() dtor" << std::endl;
 }
 
 Y2PythonClientComponent* Y2PythonClientComponent::instance()
@@ -70,6 +72,7 @@ YCPValue Y2PythonClientComponent::doActualWork(const YCPList& arglist,
   }
 
   y2debug( "Call client with args %s", client_arglist->toString().c_str());
+  std::cerr << "####  Call client with args " << client_arglist->toString().c_str() << std::endl;
   YCPList old_args = Y2WFMComponent::instance()->SetArgs(client_arglist);
   YCPValue res;
 //  YCPValue res = YRuby::yRuby()->callClient(client);
