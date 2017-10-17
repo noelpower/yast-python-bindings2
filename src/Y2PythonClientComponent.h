@@ -4,7 +4,6 @@
 #include "Y2.h"
 #include <string.h>
 
-
 /**
  * @short YaST2 Component: Python bindings
  */
