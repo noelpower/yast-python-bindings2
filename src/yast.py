@@ -6,6 +6,7 @@ from ycp2 import YCPTerm as Term
 from ycp2 import YCPInteger as Integer
 from ycp2 import YCPBoolean as Boolean
 from ycp2 import YCPFloat as Float
+from ycp2 import Id, Opt
 
 class UISequencer:
     def __init__(self, *cli_args):
@@ -30,56 +31,52 @@ class Wizard:
     @staticmethod
     def GenericDialog(button_box):
         return VBox(
-            ReplacePoint(Empty(), ID='topmenu'),
+            Id('WizardDialog'),
+            ReplacePoint(Id('topmenu'), Empty()),
             HBox(
                 HSpacing(1),
                 VBox(
                     VSpacing(0.2),
                     HBox(
-                        Heading("Initializing ...", ID='title', opts=['hstretch']),
+                        Heading(Id('title'), Opt('hstretch'), "Initializing ..."),
                         HStretch(),
-                        ReplacePoint(Empty(), ID='relnotes_rp')
+                        ReplacePoint(Id('relnotes_rp'), Empty())
                     ),
                     VWeight(
                         1,
-                        HVCenter(ReplacePoint(Empty(), ID='contents'), opts=['hvstretch'])
+                        HVCenter(Opt('hvstretch'), ReplacePoint(Id('contents'), Empty()))
                     )
                 ),
                 HSpacing(1)
             ),
-            ReplacePoint(button_box, ID='rep_button_box'),
-            VSpacing(0.2),
-            ID='WizardDialog'
+            ReplacePoint(Id('rep_button_box'), button_box),
+            VSpacing(0.2)
         )
 
     @staticmethod
     def BackAbortNextButtonBox():
         return HBox(
-            HWeight(1, ReplacePoint(
-                PushButton('Help', ID='help', opts=['key_F1', 'helpButton']),
-            ID='rep_help')),
+            HWeight(1, ReplacePoint(Id('rep_help'),
+                PushButton(Id('help'), Opt('key_F1', 'helpButton'), 'Help')
+            )),
             HStretch(),
-            HWeight(1, ReplacePoint(
-                PushButton('Back', ID='back', opts=['key_F8']),
-            ID='rep_back')),
+            HWeight(1, ReplacePoint(Id('rep_back'),
+                PushButton(Id('back'), Opt('key_F8'), 'Back')
+            )),
             HStretch(),
-            ReplacePoint(
-                PushButton('Abort', ID='abort', opts=['key_F9']),
-            ID='rep_abort'),
+            ReplacePoint(Id('rep_abort'),
+                PushButton(Id('abort'), Opt('key_F9'), 'Abort')
+            ),
             HStretch(),
-            HWeight(1, ReplacePoint(
-                PushButton('Next', ID='next', opts=['key_F10', 'default']),
-            ID='rep_next')),
+            HWeight(1, ReplacePoint(Id('rep_next'),
+                PushButton(Id('next'), Opt('key_F10', 'default'), 'Next')
+            )),
         )
 
     @staticmethod
     def CreateDialog():
         content = Wizard.GenericDialog(Wizard.BackAbortNextButtonBox())
-        args = List()
-        opts = List()
-        opts.append(Symbol('wizardDialog'))
-
-        UI.OpenDialog(content, Term('opt', opts.base()))
+        UI.OpenDialog(content, Opt('wizardDialog'))
         UI.SetFocus('next')
 
     @staticmethod
@@ -87,8 +84,8 @@ class Wizard:
         #UI.SetApplicationTitle(title)
         UI.ChangeWidget('title', 'Value', String(title))
         UI.ReplaceWidget('contents', contents)
-        UI.ReplaceWidget('rep_back', PushButton(back_txt, ID='back', opts=['key_F8']))
-        UI.ReplaceWidget('rep_next', PushButton(next_txt, ID='next', opts=['key_F10', 'default']))
+        UI.ReplaceWidget('rep_back', PushButton(Id('back'), Opt('key_F8'), back_txt))
+        UI.ReplaceWidget('rep_next', PushButton(Id('next'), Opt('key_F10', 'default'), next_txt))
 
     @staticmethod
     def DisableBackButton():
@@ -128,7 +125,7 @@ class List:
         elif type(item) in [Term, Symbol, String, Integer, Boolean, Float, YCPList]:
             self.l.push_back(item)
         else:
-            raise SyntaxError, 'Type of value "%s" unrecognized' % item
+            raise SyntaxError, 'Type of value "%s" unrecognized, %s' % (item, str(type(item)))
 
     def extend(self, items):
         for item in items:
@@ -137,7 +134,32 @@ class List:
     def base(self):
         return self.l
 
-def ButtonBox(buttons, ID=None, opts=[]):
+def ytype(item):
+    if type(item) is list:
+        sl = YCPList()
+        for si in item:
+            sl.push_back(ytype(si))
+        return sl
+    elif type(item) is str:
+        return String(item)
+    elif type(item) is int:
+        return Integer(item)
+    elif type(item) is bool:
+        return Boolean(item)
+    elif type(item) is float:
+        return Float(item)
+    elif type(item) in [Term, Symbol, String, Integer, Boolean, Float, YCPList]:
+        return item
+    else:
+        raise SyntaxError, 'Type of value "%s" unrecognized, %s' % (item, str(type(item)))
+
+def run(func, *args):
+    l = YCPList()
+    for item in args:
+        l.push_back(ytype(item))
+    return Term(func, l)
+
+def ButtonBox(*args):
     """Layout for push buttons that takes button order into account
 
     Synopsis
@@ -147,19 +169,9 @@ def ButtonBox(buttons, ID=None, opts=[]):
     term buttons  list of PushButton items
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.extend(buttons)
+    return run('ButtonBox', *args)
 
-    return Term('ButtonBox', result.base())
-
-def ComboBox(label, items=[], ID=None, opts=[]):
+def ComboBox(*args):
     """drop-down list selection (optionally editable)
 
     Synopsis
@@ -175,29 +187,9 @@ def ComboBox(label, items=[], ID=None, opts=[]):
     list items  the items contained in the combo box
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(String(label))
-    options = List()
-    for item in items:
-        if type(item) is tuple:
-            l = List()
-            l.append(item[0])
-            l.append(item[1])
-            options.append(Term('item', l.base()))
-        else:
-            options.append(String(item))
-    result.append(options)
+    return run('ComboBox', *args)
 
-    return Term('ComboBox', result.base())
-
-def DumbTab(tabs, contents, ID=None, opts=[]):
+def DumbTab(*args):
     """Simplistic tab widget that behaves like push buttons
 
     Synopsis
@@ -207,23 +199,12 @@ def DumbTab(tabs, contents, ID=None, opts=[]):
     list tabs  page headers
     term contents  page contents - usually a ReplacePoint
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(tabs)
-    result.append(contents)
-
-    return Term('DumbTab', result.base())
+    return run('DumbTab', *args)
 
 def Empty():
     return Term('Empty')
 
-def Frame(label, child, ID=None, opts=[]):
+def Frame(*args):
     """Frame with label
 
     Synopsis
@@ -234,20 +215,9 @@ def Frame(label, child, ID=None, opts=[]):
     term child  the contained child widget
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
-    result.append(child)
+    return run('Frame', *args)
 
-    return Term('Frame', result.base())
-
-def HBox(*children, **kwargs):
+def HBox(*args):
     """Generic layout: Arrange widgets horizontally
 
     Synopsis
@@ -257,22 +227,9 @@ def HBox(*children, **kwargs):
     list children  children widgets
 
     """
-    result = List()
-    for key in kwargs:
-        if key is 'ID':
-            result.append(Term('id', List([Symbol(kwargs[key])]).base()))
-        elif key is 'opts':
-            l = List()
-            for opt in opts:
-                l.append(Symbol(opt))
-            result.append(Term('opt', l.base()))
-        else:
-            raise SyntaxError, 'Invalid keyword argument %s' % key
-    result.extend(list(children))
+    return run('HBox', *args)
 
-    return Term('HBox', result.base())
-
-def VBox(*children, **kwargs):
+def VBox(*args):
     """Generic layout: Arrange widgets vertically
 
     Synopsis
@@ -282,22 +239,9 @@ def VBox(*children, **kwargs):
     list children  children widgets
 
     """
-    result = List()
-    for key in kwargs:
-        if key is 'ID':
-            result.append(Term('id', List([Symbol(kwargs[key])]).base()))
-        elif key is 'opts':
-            l = List()
-            for opt in opts:
-                l.append(Symbol(opt))
-            result.append(Term('opt', l.base()))
-        else:
-            raise SyntaxError, 'Invalid keyword argument %s' % key
-    result.extend(list(children))
+    return run('VBox', *args)
 
-    return Term('VBox', result.base())
-
-def HSpacing(size=None):
+def HSpacing(*args):
     """Fixed size empty space for layout
 
     Synopsis
@@ -307,12 +251,9 @@ def HSpacing(size=None):
     integer|float size
 
     """
-    result = List()
-    if size is not None:
-        result.append(size)
-    return Term('HSpacing', result.base())
+    return run('HSpacing', *args)
 
-def VSpacing(size=None):
+def VSpacing(*args):
     """Fixed size empty space for layout
 
     Synopsis
@@ -322,12 +263,9 @@ def VSpacing(size=None):
     integer|float size
 
     """
-    result = List()
-    if size is not None:
-        result.append(size)
-    return Term('VSpacing', result.base())
+    return run('VSpacing', *args)
 
-def HStretch(size=None):
+def HStretch(*args):
     """Fixed size empty space for layout
 
     Synopsis
@@ -337,12 +275,9 @@ def HStretch(size=None):
     integer|float size
 
     """
-    result = List()
-    if size is not None:
-        result.append(size)
-    return Term('HStretch', result.base())
+    return run('HStretch', *args)
 
-def VStretch(size=None):
+def VStretch(*args):
     """Fixed size empty space for layout
 
     Synopsis
@@ -352,12 +287,9 @@ def VStretch(size=None):
     integer|float size
 
     """
-    result = List()
-    if size is not None:
-        result.append(size)
-    return Term('VStretch', result.base())
+    return run('VStretch', *args)
 
-def HWeight(weight, child):
+def HWeight(*args):
     """Control relative size of layouts
 
     Synopsis
@@ -368,12 +300,9 @@ def HWeight(weight, child):
     term child  the child widget
 
     """
-    result = List()
-    result.append(weight)
-    result.append(child)
-    return Term('HWeight', result.base())
+    return run('HWeight', *args)
 
-def VWeight(weight, child):
+def VWeight(*args):
     """Control relative size of layouts
 
     Synopsis
@@ -384,12 +313,9 @@ def VWeight(weight, child):
     term child  the child widget
 
     """
-    result = List()
-    result.append(weight)
-    result.append(child)
-    return Term('VWeight', result.base())
+    return run('VWeight', *args)
 
-def InputField(label, defaulttext=None, ID=None, opts=[]):
+def InputField(*args):
     """Input field
 
     Synopsis
@@ -405,21 +331,9 @@ def InputField(label, defaulttext=None, ID=None, opts=[]):
     string defaulttext  The text contained in the text entry
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
-    if defaulttext is not None:
-        result.append(defaulttext)
+    return run('InputField', *args)
 
-    return Term('InputField', result.base())
-
-def TextEntry(label, defaulttext=None, ID=None, opts=[]):
+def TextEntry(*args):
     """Input field
 
     Synopsis
@@ -435,21 +349,9 @@ def TextEntry(label, defaulttext=None, ID=None, opts=[]):
     string defaulttext  The text contained in the text entry
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
-    if defaulttext is not None:
-        result.append(defaulttext)
+    return run('TextEntry', *args)
 
-    return Term('TextEntry', result.base())
-
-def Password(label, defaulttext=None, ID=None, opts=[]):
+def Password(*args):
     """Input field
 
     Synopsis
@@ -465,21 +367,9 @@ def Password(label, defaulttext=None, ID=None, opts=[]):
     string defaulttext  The text contained in the text entry
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
-    if defaulttext is not None:
-        result.append(defaulttext)
+    return run('Password', *args)
 
-    return Term('Password', result.base())
-
-def Label(label, ID=None, opts=[]):
+def Label(*args):
     """Simple static text
 
     Synopsis
@@ -493,19 +383,9 @@ def Label(label, ID=None, opts=[]):
     boldFont  use a bold font
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
+    return run('Label', *args)
 
-    return Term('Label', result.base())
-
-def Heading(label, ID=None, opts=[]):
+def Heading(*args):
     """Simple static text
 
     Synopsis
@@ -519,19 +399,9 @@ def Heading(label, ID=None, opts=[]):
     boldFont  use a bold font
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
+    return run('Heading', *args)
 
-    return Term('Heading', result.base())
-
-def Left(child, pixmap=None, ID=None, opts=[]):
+def Left(*args):
     """Layout alignment
 
     Synopsis
@@ -544,21 +414,9 @@ def Left(child, pixmap=None, ID=None, opts=[]):
     background pixmap
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(child)
-    if pixmap is not None:
-        result.append(Term('BackgroundPixmap', pixmap))
+    return run('Left', *args)
 
-    return Term('Left', result.base())
-
-def Right(child, pixmap=None, ID=None, opts=[]):
+def Right(*args):
     """Layout alignment
 
     Synopsis
@@ -571,21 +429,9 @@ def Right(child, pixmap=None, ID=None, opts=[]):
     background pixmap
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(child)
-    if pixmap is not None:
-        result.append(Term('BackgroundPixmap', pixmap))
+    return run('Right', *args)
 
-    return Term('Right', result.base())
-
-def Top(child, pixmap=None, ID=None, opts=[]):
+def Top(*args):
     """Layout alignment
 
     Synopsis
@@ -598,21 +444,9 @@ def Top(child, pixmap=None, ID=None, opts=[]):
     background pixmap
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(child)
-    if pixmap is not None:
-        result.append(Term('BackgroundPixmap', pixmap))
+    return run('Top', *args)
 
-    return Term('Top', result.base())
-
-def Bottom(child, pixmap=None, ID=None, opts=[]):
+def Bottom(*args):
     """Layout alignment
 
     Synopsis
@@ -625,21 +459,9 @@ def Bottom(child, pixmap=None, ID=None, opts=[]):
     background pixmap
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(child)
-    if pixmap is not None:
-        result.append(Term('BackgroundPixmap', pixmap))
+    return run('Bottom', *args)
 
-    return Term('Bottom', result.base())
-
-def HCenter(child, pixmap=None, ID=None, opts=[]):
+def HCenter(*args):
     """Layout alignment
 
     Synopsis
@@ -652,21 +474,9 @@ def HCenter(child, pixmap=None, ID=None, opts=[]):
     background pixmap
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(child)
-    if pixmap is not None:
-        result.append(Term('BackgroundPixmap', pixmap))
+    return run('HCenter', *args)
 
-    return Term('HCenter', result.base())
-
-def VCenter(child, pixmap=None, ID=None, opts=[]):
+def VCenter(*args):
     """Layout alignment
 
     Synopsis
@@ -679,21 +489,9 @@ def VCenter(child, pixmap=None, ID=None, opts=[]):
     background pixmap
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(child)
-    if pixmap is not None:
-        result.append(Term('BackgroundPixmap', pixmap))
+    return run('VCenter', *args)
 
-    return Term('VCenter', result.base())
-
-def HVCenter(child, pixmap=None, ID=None, opts=[]):
+def HVCenter(*args):
     """Layout alignment
 
     Synopsis
@@ -706,21 +504,9 @@ def HVCenter(child, pixmap=None, ID=None, opts=[]):
     background pixmap
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(child)
-    if pixmap is not None:
-        result.append(Term('BackgroundPixmap', pixmap))
+    return run('HVCenter', *args)
 
-    return Term('HVCenter', result.base())
-
-def MinWidth(size, child):
+def MinWidth(*args):
     """Layout minimum size
 
     Synopsis
@@ -731,12 +517,9 @@ def MinWidth(size, child):
     term child  The contained child widget
 
     """
-    result = List()
-    result.append(size)
-    result.append(child)
-    return Term('MinWidth', result.base())
+    return run('MinWidth', *args)
 
-def MinHeight(size, child):
+def MinHeight(*args):
     """Layout minimum size
 
     Synopsis
@@ -747,12 +530,9 @@ def MinHeight(size, child):
     term child  The contained child widget
 
     """
-    result = List()
-    result.append(size)
-    result.append(child)
-    return Term('MinHeight', result.base())
+    return run('MinHeight', *args)
 
-def MinSize(width, height, child):
+def MinSize(*args):
     """Layout minimum size
 
     Synopsis
@@ -764,13 +544,9 @@ def MinSize(width, height, child):
     term child  The contained child widget
 
     """
-    result = List()
-    result.append(width)
-    result.append(height)
-    result.append(child)
-    return Term('MinSize', result.base())
+    return run('MinSize', *args)
 
-def PushButton(label, ID=None, opts=[]):
+def PushButton(*args):
     """Perform action on click
 
     Synopsis
@@ -788,19 +564,9 @@ def PushButton(label, ID=None, opts=[]):
     customButton  override any other button role assigned to this button
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
+    return run('PushButton', *args)
 
-    return Term('PushButton', result.base())
-
-def ReplacePoint(child, ID=None, opts=[]):
+def ReplacePoint(*args):
     """Pseudo widget to replace parts of a dialog
 
     Synopsis
@@ -809,19 +575,9 @@ def ReplacePoint(child, ID=None, opts=[]):
     Parameters
     term child  the child widget
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        for opt in opts:
-            l = List()
-            l.append(Symbol(opt))
-            result.append(Term('opt', l.base()))
-    result.append(child)
+    return run('ReplacePoint', *args)
 
-    return Term('ReplacePoint', result.base())
-
-def RichText(text, ID=None, opts=[]):
+def RichText(*args):
     """Static text with HTML-like formatting
 
     Synopsis
@@ -836,19 +592,9 @@ def RichText(text, ID=None, opts=[]):
     shrinkable  make the widget very small
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(text)
+    return run('RichText', *args)
 
-    return Term('RichText', result.base())
-
-def Table(header, items=[], ID=None, opts=[]):
+def Table(*args):
     """Multicolumn table widget
 
     Synopsis
@@ -861,26 +607,10 @@ def Table(header, items=[], ID=None, opts=[]):
     list items  the items contained in the selection box
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(Term('header', List(header).base()))
-    contents = List()
-    for item in items:
-        if type(item) is list:
-            values = [Term('id', List([String(item[0])]).base())]
-            values.extend(list(item[1]))
-            contents.append(Term('item', List(values).base()))
-        else:
-            contents.append(Term('item', List(list(item)).base()))
-    result.append(contents.base())
+    return run('Table', *args)
 
-    return Term('Table', result.base())
+def Header(*args):
+    return run('header', *args)
 
 def Node(label, expanded=False, children=[], ID=None):
     result = List()
@@ -892,7 +622,10 @@ def Node(label, expanded=False, children=[], ID=None):
 
     return Term('item', result.base())
 
-def Tree(label, items, ID=None, opts=[]):
+def Item(*args):
+    return run('item', *args)
+
+def Tree(*args):
     """Scrollable tree selection
 
     Synopsis
@@ -908,16 +641,5 @@ def Tree(label, items, ID=None, opts=[]):
     itemList items  the items contained in the tree
 
     """
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    if opts is not None:
-        l = List()
-        for opt in opts:
-            l.append(Symbol(opt))
-        result.append(Term('opt', l.base()))
-    result.append(label)
-    result.append(items)
-
-    return Term('Tree', result.base())
+    return run('Tree', *args)
 

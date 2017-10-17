@@ -1,6 +1,10 @@
 #include <YCP_UI.h>
+#include <cstdarg>
 #include <string>
 using namespace std;
+
+YCPTerm Id(string id);
+YCPTerm Opt(char * opt, ...);
 
 class UI
 {

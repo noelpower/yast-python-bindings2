@@ -37,4 +37,6 @@ class YCPString;
 %include <ycp/YCPBoolean.h>
 %ignore YCPFloatRep;
 %include <ycp/YCPFloat.h>
+%varargs(25, char * opt = NULL) Opt;
 %include "wrap.h"
+
