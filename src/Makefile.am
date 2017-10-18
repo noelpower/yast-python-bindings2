@@ -14,6 +14,6 @@ _ycp2_la_LDFLAGS = -module ${PYTHON_LDFLAGS} -Wl,-rpath=$(libpy2UIdir)
 
 _ycp2_la_LIBADD = -L$(libpy2UIdir) -lpy2UI
 
-_ycp2_la_CPPFLAGS = -I/usr/include/YaST2 ${PYTHON_CPPFLAGS}
+_ycp2_la_CPPFLAGS = -std=c++11 -I/usr/include/YaST2 ${PYTHON_CPPFLAGS}
 
 CLEANFILES = ycp2.py yast-core_wrap.cxx
