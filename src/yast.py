@@ -1,6 +1,6 @@
 from ycp2 import UI
 from ycp2 import YCPSymbol as Symbol
-from ycp2 import YCPList
+from ycp2 import YCPList as List
 from ycp2 import YCPString as String
 from ycp2 import YCPTerm as Term
 from ycp2 import YCPInteger as Integer
@@ -103,40 +103,9 @@ class Wizard:
     def DisableAbortButton():
         pass
 
-class List:
-    def __init__(self, items=[]):
-        self.l = YCPList()
-        for item in items:
-            self.append(item)
-
-    def append(self, item):
-        if type(item) is list:
-            self.l.push_back(List(item).base())
-        elif type(item) is str:
-            self.l.push_back(String(item))
-        elif type(item) is int:
-            self.l.push_back(Integer(item))
-        elif type(item) is bool:
-            self.l.push_back(Boolean(item))
-        elif type(item) is float:
-            self.l.push_back(Float(item))
-        elif type(item) is type(self):
-            self.l.push_back(item.base())
-        elif type(item) in [Term, Symbol, String, Integer, Boolean, Float, YCPList]:
-            self.l.push_back(item)
-        else:
-            raise SyntaxError, 'Type of value "%s" unrecognized, %s' % (item, str(type(item)))
-
-    def extend(self, items):
-        for item in items:
-            self.l.push_back(item)
-
-    def base(self):
-        return self.l
-
 def ytype(item):
     if type(item) is list:
-        sl = YCPList()
+        sl = List()
         for si in item:
             sl.push_back(ytype(si))
         return sl
@@ -148,13 +117,13 @@ def ytype(item):
         return Boolean(item)
     elif type(item) is float:
         return Float(item)
-    elif type(item) in [Term, Symbol, String, Integer, Boolean, Float, YCPList]:
+    elif type(item) in [Term, Symbol, String, Integer, Boolean, Float, List]:
         return item
     else:
         raise SyntaxError, 'Type of value "%s" unrecognized, %s' % (item, str(type(item)))
 
 def run(func, *args):
-    l = YCPList()
+    l = List()
     for item in args:
         l.push_back(ytype(item))
     return Term(func, l)
@@ -611,16 +580,6 @@ def Table(*args):
 
 def Header(*args):
     return run('header', *args)
-
-def Node(label, expanded=False, children=[], ID=None):
-    result = List()
-    if ID is not None:
-        result.append(Term('id', List([Symbol(ID)]).base()))
-    result.append(label)
-    result.append(expanded)
-    result.append(children)
-
-    return Term('item', result.base())
 
 def Item(*args):
     return run('item', *args)
