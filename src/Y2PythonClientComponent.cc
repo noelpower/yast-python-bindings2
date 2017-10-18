@@ -26,7 +26,6 @@ as published by the Free Software Foundation; either version
 #include <ycp/YCPSymbol.h>
 
 #include "Y2PythonClientComponent.h"
-//#include "YRuby.h"
 #include "wfm/Y2WFMComponent.h"
 #include "ycp/YCPBoolean.h"
 
@@ -36,13 +35,11 @@ Y2PythonClientComponent* Y2PythonClientComponent::_instance = NULL;
 
 Y2PythonClientComponent::Y2PythonClientComponent()
 {
-  std::cerr << "####  Y2PythonClientComponent::Y2PythonClientComponent() ctor" << std::endl;
 }
 
 Y2PythonClientComponent::~Y2PythonClientComponent()
 {
   y2debug( "Destroying Y2PythonClientComponent" );
-  std::cerr << "####  Y2PythonClientComponent::Y2PythonClientComponent() dtor" << std::endl;
 }
 
 Y2PythonClientComponent* Y2PythonClientComponent::instance()
@@ -68,7 +65,6 @@ YCPValue callClient(const string& client)
     Py_Finalize();
     fclose(fp);
     if (res < 0) {
-        std::cerr << "####  error running " << client.c_str() << std::endl;
         return YCPBoolean(false);
     }
     return YCPBoolean(true);
@@ -96,10 +92,8 @@ YCPValue Y2PythonClientComponent::doActualWork(const YCPList& arglist,
   }
 
   y2debug( "Call client with args %s", client_arglist->toString().c_str());
-  std::cerr << "####  Call client with args " << client_arglist->toString().c_str() << std::endl;
   YCPList old_args = Y2WFMComponent::instance()->SetArgs(client_arglist);
   YCPValue res = callClient(client);
-//  YCPValue res = YRuby::yRuby()->callClient(client);
   Y2WFMComponent::instance()->SetArgs(old_args);
   return res;
 }

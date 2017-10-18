@@ -20,7 +20,6 @@ Y2Component *Y2CCPythonClient::provideNamespace (const char *name)
 Y2Component *Y2CCPythonClient::create ( const char * name) const
 {
   y2debug("look for client with name %s", name);
-  std::cerr << "#### look for client with name " << name << std::endl;
   string sname(name);
   string client_path = YCPPathSearch::find (YCPPathSearch::Client, sname + ".py");
   //client not found in form clients/<name>.py
@@ -39,7 +38,6 @@ Y2Component *Y2CCPythonClient::create ( const char * name) const
   }
 
   y2debug("test existence of file %s", client_path.c_str());
-  std::cerr << "#### test existence of file " << client_path.c_str() << std::endl;
   if (access(client_path.c_str(), R_OK) == -1) //no file or no read permission
     return NULL;
 
