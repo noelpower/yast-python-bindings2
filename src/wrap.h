@@ -60,7 +60,7 @@ public:
     static bool 	WidgetExists			( const string & widgetId );
     static string UserInput			();
     static string TimeoutUserInput		( const int & timeout );
-    static YCPMap WaitForEvent			( const int & timeout = 0 );
+    static map<string, string> WaitForEvent			( const int & timeout = 0 );
     static bool WizardCommand			( const YCPTerm & command );
     static string PollInput			();
     static bool	TextMode			();

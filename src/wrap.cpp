@@ -26,6 +26,14 @@ YCPTerm Opt(char * opt, ...)
     return YCPTerm("opt", l);
 }
 
+static string ycpval_to_string(YCPValue val)
+{
+    if (val->isSymbol())
+        return val->asSymbol()->symbol();
+    else if (val->isString())
+        return val->asString()->value();
+}
+
 string UI::AskForExistingDirectory(const string & startDir, const string & headline) {
 	return YCP_UI::AskForExistingDirectory(YCPString(startDir), YCPString(headline))->asString()->value();
 }
@@ -120,11 +128,7 @@ void UI::PostponeShortcutCheck() {
 
 string UI::QueryWidget(const string & widgetId, const string & property) {
 	YCPValue val = YCP_UI::QueryWidget(YCPSymbol(widgetId)->asValue(), YCPSymbol(property)->asValue());
-	if (val->isSymbol())
-		return val->asSymbol()->symbol();
-	else if (val->isString())
-		return val->asString()->value();
-	return "";
+    return ycpval_to_string(val);
 }
 
 void UI::RecalcLayout() {
@@ -189,19 +193,20 @@ bool UI::WidgetExists(const string & widgetId) {
 
 string UI::UserInput() {
 	YCPValue val = YCP_UI::UserInput();
-	if (val->isSymbol())
-		return val->asSymbol()->symbol();
-	else if (val->isString())
-		return val->asString()->value();
-	return "";
+    return ycpval_to_string(val);
 }
 
 string UI::TimeoutUserInput(const int & timeout) {
 	return YCP_UI::TimeoutUserInput(YCPInteger(timeout))->asSymbol()->symbol();
 }
 
-YCPMap UI::WaitForEvent(const int & timeout) {
-	return YCP_UI::WaitForEvent(YCPInteger(timeout))->asMap();
+#include <map>
+map<string, string> UI::WaitForEvent(const int & timeout) {
+    map<string, string> ret;
+	auto m = YCP_UI::WaitForEvent(YCPInteger(timeout))->asMap();
+    for (YCPMap::const_iterator pos = m->begin(); pos != m->end(); ++pos)
+        ret[ycpval_to_string(pos->first)] = ycpval_to_string(pos->second);
+    return ret;
 }
 
 bool UI::WizardCommand(const YCPTerm & command) {

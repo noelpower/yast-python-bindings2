@@ -3,6 +3,7 @@
 %feature("autodoc", "3");
 
 %include std_string.i
+%include std_map.i
 %inline %{
 using namespace std;
 %}
@@ -39,6 +40,7 @@ class YCPString;
 %ignore YCPFloatRep;
 %include <ycp/YCPFloat.h>
 %varargs(25, char * opt = NULL) Opt;
+%template() std::map<std::string, std::string>;
 %include "wrap.h"
 %include "yast.h"
 
