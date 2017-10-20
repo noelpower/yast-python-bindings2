@@ -1,5 +1,52 @@
 #include "yast.h"
 
+YCPList * ycpListFunctions;
+YCPList * ycpListVariables;
+
+YCPTerm Id(string id)
+{
+    auto l = YCPList();
+    l.push_back(YCPSymbol(id));
+    return YCPTerm("id", l);
+}
+
+YCPTerm Opt(char * opt, ...)
+{
+    va_list args;
+    va_start(args, opt);
+    auto l = YCPList();
+    char * tmp = NULL;
+    l.push_back(YCPSymbol(opt));
+
+    for (int i = 0; i < 25; i++) {
+        tmp = va_arg(args, char*);
+        if (tmp != NULL)
+            l.push_back(YCPSymbol(tmp));
+    }
+
+    va_end(args);
+
+    return YCPTerm("opt", l);
+}
+
+PyObject *ycp_to_pyval(YCPValue val)
+{
+    if (val->isString())
+        return PyString_FromString(val->asString()->value().c_str());
+    else if (val->isInteger())
+        return PyInt_FromLong(val->asInteger()->value());
+    else if (val->isBoolean())
+        return PyBool_FromLong(val->asBoolean()->value());
+    else if (val->isVoid())
+        Py_RETURN_NONE;
+    else if (val->isFloat())
+        return PyFloat_FromDouble(val->asFloat()->value());
+    else if (val->isSymbol())
+        return PyString_FromString(val->asSymbol()->symbol().c_str());
+    else
+        Py_RETURN_NONE;
+}
+
 static Y2Namespace * getNs(const char * ns_name)
 {
     Import import(ns_name); // has a static cache
@@ -49,22 +96,116 @@ static YCPValue GetYCPVariable(const string & namespace_name, const string & var
     return sym_entry->value();
 }
 
-static YCPValue CallYCPFunction(const string & namespace_name, const string & function_name, ...)
+/**
+ * This is needed for importing new module from ycp.
+ */
+static PyMethodDef new_module_methods[] =
 {
-    va_list args;
-    va_start(args, function_name);
+    {NULL, NULL, 0, NULL}
+};
+
+/**
+ * Register functions and variables from namespace to python module
+ * @param char *NameSpace - name of namespace
+ * @param YCPList list_functions - names of functions
+ * @param YCPList list_variables - names of variables
+ * @return true on success
+ */
+static bool RegFunctions(const string & NameSpace, YCPList list_functions, YCPList list_variables)
+{
+    // Init new module with name NameSpace and method __run (see new_module_methods)
+    PyObject *new_module = Py_InitModule(NameSpace.c_str(), new_module_methods);
+    if (new_module == NULL) return false;
+
+    // Dictionary of new_module - there will be registered all functions
+    PyObject *new_module_dict = PyModule_GetDict(new_module);
+    if (new_module_dict == NULL) return false;
+
+    PyObject *code;
+    auto g = PyDict_New();
+    if (!g)
+        return NULL;
+    PyDict_SetItemString(g, "__builtins__", PyEval_GetBuiltins());
+
+    // register functions from ycp to python module 
+    for (int i=0; i<list_functions.size();i++) {
+        string function = list_functions->value(i)->asString()->value();
+        stringstream func_def;
+        func_def << "def " << function << "(*args):" << endl;
+        func_def << "\tfrom ycp2 import CallYCPFunction" << endl;
+        func_def << "\tfrom ytypes import pytval_to_ycp, ycp_to_pyval" << endl;
+        func_def << "\treturn ycp_to_pyval(CallYCPFunction(\"" + string(NameSpace) + "\", \"" + function + "\", pytval_to_ycp(list(args))))" << endl;
+
+        // Register function into dictionary of new module. Returns new reference - must be decremented
+        code = PyRun_String(func_def.str().c_str(), Py_single_input, g, new_module_dict);
+        Py_XDECREF(code);
+    }
+
+    // TODO: register getters and setters for variables in YCPList list_variables
+
+    return true;
+}
+
+/**
+ * Function check SymbolEntry and add name
+ * to ycpListFunctions if it is function or
+ * add it to ycpListVariables if it is variable
+ * @param const SymbolEntry for analyse
+ * @return bool always return true
+ */
+static bool HandleSymbolTable (const SymbolEntry & se)
+{
+    if (se.isFunction ()) {
+        ycpListFunctions->add(YCPString(se.name()));
+    } else if (se.isVariable ()) {
+        ycpListVariables->add(YCPString(se.name()));
+    }
+    return true;
+}
+
+/**
+ * Function import module written in YCP.
+ * It means that create module into namespace of python module ycp
+ * @param PyObject *args - string - include name of module written in YCP 
+ * @return PyObject * true on success
+ */
+bool import_module(const string & ns_name)
+{
+    Y2Namespace *ns = getNs(ns_name.c_str());
+    ycpListFunctions = new YCPList();
+    ycpListVariables = new YCPList();
+
+    ns->table()->forEach (&HandleSymbolTable);
+    RegFunctions(ns_name, *ycpListFunctions, *ycpListVariables);
+
+    delete ycpListFunctions;
+    delete ycpListVariables;
+
+    return true;
+}
+
+/**
+ * Function handles calling ycp function from python
+ * @param const string & namespace
+ * @param const string & name of function
+ * @param ... args for function
+ * @return YCPValue return result of running function
+ */
+YCPValue CallYCPFunction(const char * namespace_name, const char * function_name, YCPList args)
+{
     YCPValue ycpArg = YCPNull ();
 	YCPValue ycpRetValue = YCPNull ();
 
+
     // create namespace
-    Y2Namespace *ns = getNs(namespace_name.c_str());
+    Y2Namespace *ns = getNs(namespace_name);
 
     if (ns == NULL) {
         y2error ("Creating namespace fault.");
         return YCPNull();
     }
 
-    TableEntry *sym_te = ns->table ()->find (function_name.c_str());
+    TableEntry *sym_te = ns->table ()->find (function_name);
 
     if (sym_te == NULL) {
         y2error ("No such symbol %s::%s", namespace_name, function_name);
@@ -84,8 +225,12 @@ static YCPValue CallYCPFunction(const string & namespace_name, const string & fu
         return YCPNull();
     }
 
-    for (int i=0; i < fun_type->parameterCount(); i++) {
-        ycpArg = va_arg(args, YCPValue);
+    for (int i = 0; i < args.size(); i++) {
+        ycpArg = args->value(i);
+
+        if (fun_type->parameterType(i)->isSymbol() && ycpArg->isString()) {
+            ycpArg = YCPSymbol(ycpArg->asString()->value());
+        }
         if (ycpArg.isNull())
             ycpArg = YCPVoid();
 
@@ -99,7 +244,6 @@ static YCPValue CallYCPFunction(const string & namespace_name, const string & fu
         return YCPNull();
     }
 
-    va_end(args);
 
     ycpRetValue = func_call->evaluateCall();
     delete func_call;
@@ -110,25 +254,29 @@ static YCPValue CallYCPFunction(const string & namespace_name, const string & fu
     return ycpRetValue;
 }
 
-static bool init_ui(const string & ui_name)
+void startup_yuicomponent()
 {
     Y2Component *c = YUIComponent::uiComponent ();
 
     if (c == 0)
     {
+        YUILoader::loadUI();
+        const string & ui_name = YSettings::loadedUI();
+
         y2debug ("UI component not created yet, creating %s", ui_name.c_str());
+
         c = Y2ComponentBroker::createServer (ui_name.c_str());
 
         if (c == 0)
         {
             y2error ("Cannot create component %s", ui_name.c_str());
-            return false;
+            return;
         }
 
         if (YUIComponent::uiComponent () == 0)
         {
             y2error ("Component %s is not a UI", ui_name.c_str());
-            return false;
+            return;
         } else {
             // got it - initialize
             c->setServerOptions (0, NULL);
@@ -136,43 +284,6 @@ static bool init_ui(const string & ui_name)
     } else {
         y2debug ("UI component already present: %s", c->name ().c_str ());
     }
-    return true;
-}
-
-void Wizard::CreateDialog()
-{
-    CallYCPFunction("Wizard", "CreateDialog");
-}
-
-void Wizard::SetContentsButtons(const string & title, const YCPValue & contents, const string & help_txt, const string & back_txt, const string & next_txt)
-{
-    CallYCPFunction("Wizard", "SetContentsButtons", YCPString(title), contents, YCPString(help_txt), YCPString(back_txt), YCPString(next_txt));
-}
-
-void Wizard::DisableBackButton()
-{
-
-}
-
-void Wizard::DisableNextButton()
-{
-
-}
-
-void Wizard::EnableNextButton()
-{
-
-}
-
-void Wizard::DisableAbortButton()
-{
-
-}
-
-void startup_yuicomponent()
-{
-    YUILoader::loadUI();
-    init_ui(YSettings::loadedUI());
 }
 
 void shutdown_yuicomponent()

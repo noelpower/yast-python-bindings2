@@ -9,15 +9,9 @@ using namespace std;
 %}
 
 %{
-/* #include <YCP_UI.h> */
 #include <ycp/YCPFloat.h>
-#include "wrap.h"
 #include "yast.h"
 %}
-
-%catches(std::runtime_error, ...) UI::QueryWidget(const string & widgetId, const string & property);
-%catches(std::runtime_error, ...) UI::UserInput();
-%catches(std::runtime_error, ...) UI::WaitForEvent(const int & timeout);
 
 %feature("valuewrapper") YCPBoolean;
 class YCPBoolean;
@@ -25,9 +19,6 @@ class YCPBoolean;
 class YCPInteger;
 %feature("valuewrapper") YCPString;
 class YCPString;
-
-/* %rename(UI) YCP_UI; */
-/* %include <YCP_UI.h> */
 
 %ignore YCPTermRep;
 %include <ycp/YCPTerm.h>
@@ -44,7 +35,5 @@ class YCPString;
 %ignore YCPFloatRep;
 %include <ycp/YCPFloat.h>
 %varargs(25, char * opt = NULL) Opt;
-%template() std::map<std::string, std::string>;
-%include "wrap.h"
 %include "yast.h"
 
