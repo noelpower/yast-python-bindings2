@@ -144,6 +144,9 @@ bool init_ui(const string & ui_name)
 
 void Wizard::CreateDialog()
 {
+    YUILoader::loadUI();
+    init_ui(YSettings::loadedUI());
+
     CallYCPFunction("Wizard", "CreateDialog");
 }
 

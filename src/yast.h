@@ -16,6 +16,8 @@
 #include <ycp/YCPString.h>
 #include <ycp/YCPVoid.h>
 #include <ycp/SymbolTable.h>
+#include <yui/YUILoader.h>
+#include <yui/YSettings.h>
 
 #include <string>
 #include <vector>
