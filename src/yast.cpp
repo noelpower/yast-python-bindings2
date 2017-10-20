@@ -113,7 +113,7 @@ static YCPValue CallYCPFunction(const string & namespace_name, const string & fu
     return ycpRetValue;
 }
 
-bool init_ui(const string & ui_name)
+static bool init_ui(const string & ui_name)
 {
     Y2Component *c = YUIComponent::uiComponent ();
 
@@ -144,9 +144,6 @@ bool init_ui(const string & ui_name)
 
 void Wizard::CreateDialog()
 {
-    YUILoader::loadUI();
-    init_ui(YSettings::loadedUI());
-
     CallYCPFunction("Wizard", "CreateDialog");
 }
 
@@ -173,5 +170,18 @@ void Wizard::EnableNextButton()
 void Wizard::DisableAbortButton()
 {
 
+}
+
+void startup_yuicomponent()
+{
+    YUILoader::loadUI();
+    init_ui(YSettings::loadedUI());
+}
+
+void shutdown_yuicomponent()
+{
+    YUIComponent *c = YUIComponent::uiComponent();
+    if (c)
+        c->result(YCPVoid());
 }
 

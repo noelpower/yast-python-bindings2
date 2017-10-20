@@ -8,7 +8,7 @@ from ycp2 import YCPBoolean as Boolean
 from ycp2 import YCPFloat as Float
 from ycp2 import Id, Opt
 from ycp2 import Wizard
-from ycp2 import init_ui
+from ycp2 import startup_yuicomponent, shutdown_yuicomponent
 
 class UISequencer:
     def __init__(self, *cli_args):

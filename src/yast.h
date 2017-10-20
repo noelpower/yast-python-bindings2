@@ -35,4 +35,6 @@ public:
     static void DisableAbortButton();
 };
 
-bool init_ui(const string & ui_name);
+void startup_yuicomponent();
+void shutdown_yuicomponent();
+
