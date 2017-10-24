@@ -28,10 +28,18 @@ YCPTerm Opt(char * opt, ...)
 
 static string ycpval_to_string(YCPValue val)
 {
-    if (val->isSymbol())
-        return val->asSymbol()->symbol();
-    else if (val->isString())
-        return val->asString()->value();
+    /*
+     * if val is null we have probably already encountered 
+     * an exception caught by the YCP layer see YCP_UI::QueryWidget for
+     * example. Is there a way to safely throw to python ?
+     */
+    if (!val.isNull()) {
+        if (val->isSymbol())
+            return val->asSymbol()->symbol();
+        else if (val->isString())
+            return val->asString()->value();
+    }
+    return string();
 }
 
 string UI::AskForExistingDirectory(const string & startDir, const string & headline) {
