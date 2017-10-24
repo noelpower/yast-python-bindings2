@@ -15,6 +15,10 @@ using namespace std;
 #include "yast.h"
 %}
 
+%catches(std::runtime_error ...) UI::QueryWidget(const string & widgetId, const string & property);
+%catches(std::runtime_error ...) UI::UserInput();
+%catches(std::runtime_error ...) UI::WaitForEvent(const int & timeout);
+
 %feature("valuewrapper") YCPBoolean;
 class YCPBoolean;
 %feature("valuewrapper") YCPInteger;

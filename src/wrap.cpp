@@ -33,13 +33,12 @@ static string ycpval_to_string(YCPValue val)
      * an exception caught by the YCP layer see YCP_UI::QueryWidget for
      * example. Is there a way to safely throw to python ?
      */
-    if (!val.isNull()) {
-        if (val->isSymbol())
-            return val->asSymbol()->symbol();
-        else if (val->isString())
-            return val->asString()->value();
-    }
-    return string();
+    if (val.isNull())
+	    throw std::runtime_error("Attempting to convert YCPNull to string");
+    if (val->isSymbol())
+        return val->asSymbol()->symbol();
+    else if (val->isString())
+        return val->asString()->value();
 }
 
 string UI::AskForExistingDirectory(const string & startDir, const string & headline) {
