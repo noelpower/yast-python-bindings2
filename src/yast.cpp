@@ -21,7 +21,7 @@ static void SetYCPVariable(const string & namespace_name, const string & variabl
     TableEntry *sym_te = ns->table ()->find (variable_name.c_str());
 
     if (sym_te == NULL) {
-        y2error ("No such symbol %s::%s", namespace_name, variable_name);
+        y2error ("No such symbol %s::%s", namespace_name.c_str(), variable_name.c_str());
         return;
     }
 
@@ -41,7 +41,7 @@ static YCPValue GetYCPVariable(const string & namespace_name, const string & var
     TableEntry *sym_te = ns->table ()->find (variable_name.c_str());
 
     if (sym_te == NULL) {
-        y2error ("No such symbol %s::%s", namespace_name, variable_name);
+        y2error ("No such symbol %s::%s", namespace_name.c_str(), variable_name.c_str());
         return YCPNull();
     }
 
@@ -49,10 +49,8 @@ static YCPValue GetYCPVariable(const string & namespace_name, const string & var
     return sym_entry->value();
 }
 
-static YCPValue CallYCPFunction(const string & namespace_name, const string & function_name, ...)
+static YCPValue CallYCPFunction(const string & namespace_name, const string & function_name, std::list<YCPValue>& args)
 {
-    va_list args;
-    va_start(args, function_name);
     YCPValue ycpArg = YCPNull ();
 	YCPValue ycpRetValue = YCPNull ();
 
@@ -67,7 +65,7 @@ static YCPValue CallYCPFunction(const string & namespace_name, const string & fu
     TableEntry *sym_te = ns->table ()->find (function_name.c_str());
 
     if (sym_te == NULL) {
-        y2error ("No such symbol %s::%s", namespace_name, function_name);
+        y2error ("No such symbol %s::%s", namespace_name.c_str(), function_name.c_str());
         return YCPNull();
     }
 
@@ -80,31 +78,29 @@ static YCPValue CallYCPFunction(const string & namespace_name, const string & fu
     Y2Function *func_call = ns->createFunctionCall (function_name, NULL);
 
     if (func_call == NULL) {
-        y2error ("No such function %s::%s", namespace_name, function_name);
+        y2error ("No such function %s::%s", namespace_name.c_str(), function_name.c_str());
         return YCPNull();
     }
 
-    for (int i=0; i < fun_type->parameterCount(); i++) {
-        ycpArg = va_arg(args, YCPValue);
+    for (std::list<YCPValue>::const_iterator it = args.begin(); it != args.end(); ++it) {
+        ycpArg = *it;
         if (ycpArg.isNull())
             ycpArg = YCPVoid();
 
         if (!func_call->appendParameter(ycpArg)) {
-            y2error ("Problem with adding arguments of function %s", function_name);
+            y2error ("Problem with adding arguments of function %s", function_name.c_str());
             return YCPNull();
         }
     }
     if (!func_call->finishParameters()) {
-        y2error ("Problem with finishing arguments for adding arguments of function %s", function_name);
+        y2error ("Problem with finishing arguments for adding arguments of function %s", function_name.c_str());
         return YCPNull();
     }
-
-    va_end(args);
 
     ycpRetValue = func_call->evaluateCall();
     delete func_call;
     if (ycpRetValue.isNull()) {
-        y2error ("Return value of function %s is NULL", function_name);
+        y2error ("Return value of function %s is NULL", function_name.c_str());
         return YCPNull();
     }
     return ycpRetValue;
@@ -141,12 +137,14 @@ static bool init_ui(const string & ui_name)
 
 void Wizard::CreateDialog()
 {
-    CallYCPFunction("Wizard", "CreateDialog");
+    std::list<YCPValue> args;
+    CallYCPFunction("Wizard", "CreateDialog", args);
 }
 
 void Wizard::SetContentsButtons(const string & title, const YCPValue & contents, const string & help_txt, const string & back_txt, const string & next_txt)
 {
-    CallYCPFunction("Wizard", "SetContentsButtons", YCPString(title), contents, YCPString(help_txt), YCPString(back_txt), YCPString(next_txt));
+    std::list<YCPValue> args{YCPString(title), contents, YCPString(help_txt), YCPString(back_txt), YCPString(next_txt)};
+    CallYCPFunction("Wizard", "SetContentsButtons", args);
 }
 
 void Wizard::DisableBackButton()
