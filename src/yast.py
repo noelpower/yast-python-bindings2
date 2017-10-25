@@ -895,7 +895,7 @@ def TimezoneSelector(*args):
     TimezoneSelector (	string pixmap , map timezones );
 
     Parameters
-    string pixmap  path to a jpg or png of a world map - with 0°0° being the middle of the picture
+    string pixmap  path to a jpg or png of a world map - with being the middle of the picture
     map timezones  a map of timezones. The map should be between e.g. Europe/London
         and the tooltip to be displayed ("United Kingdom")
     """
