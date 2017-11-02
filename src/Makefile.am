@@ -8,7 +8,7 @@ pyexec_LTLIBRARIES = _ycp2.la
 
 _ycp2_la_SOURCES = yast-core_wrap.cxx yast.cpp yast-core.i ytypes.cpp
 
-libpy2UIdir = /usr/lib64/YaST2/plugin
+libpy2UIdir = $(libdir)/YaST2/plugin
 
 _ycp2_la_LDFLAGS = -module ${PYTHON_LDFLAGS} -Wl,-rpath=$(libpy2UIdir)
 

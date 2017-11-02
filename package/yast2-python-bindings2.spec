@@ -54,7 +54,7 @@ and also Python scripts can use YaST agents, APIs and modules.
 
 %build
 autoreconf -if
-%configure --prefix=%{_prefix} --enable-static=no
+%configure --prefix=%{_prefix} --enable-static=no --libdir=%{_libdir}
 make
 
 %install
