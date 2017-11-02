@@ -38,7 +38,7 @@ static Y2Namespace * getNs(const char * ns_name)
     return ns;
 }
 
-static void SetYCPVariable(const string & namespace_name, const string & variable_name, YCPValue value)
+void SetYCPVariable(const string & namespace_name, const string & variable_name, YCPValue value)
 {
     Y2Namespace *ns = getNs(namespace_name.c_str());
 
@@ -58,7 +58,7 @@ static void SetYCPVariable(const string & namespace_name, const string & variabl
     sym_entry->setValue(value);
 }
 
-static YCPValue GetYCPVariable(const string & namespace_name, const string & variable_name)
+YCPValue GetYCPVariable(const string & namespace_name, const string & variable_name)
 {
     Y2Namespace *ns = getNs(namespace_name.c_str());
 
@@ -123,7 +123,21 @@ static bool RegFunctions(const string & NameSpace, YCPList list_functions, YCPLi
         Py_XDECREF(code);
     }
 
-    // TODO: register getters and setters for variables in YCPList list_variables
+    // adding variables like function from ycp to module
+    for (int i=0; i<list_variables.size();i++) {
+        string function = list_variables->value(i)->asString()->value();
+        stringstream func_def;
+        func_def << "def " << function << "(val=None):" << endl;
+        func_def << "\tfrom ycp2 import GetYCPVariable, SetYCPVariable" << endl;
+        func_def << "\tif val:" << endl;
+        func_def << "\t\tSetYCPVariable(\"" + string(NameSpace) + "\", \"" + function + "\", pytval_to_ycp(val))" << endl;
+        func_def << "\telse:" << endl;
+        func_def << "\t\treturn GetYCPVariable(\"" + string(NameSpace) + "\", \"" + function + "\")" << endl;
+
+        // Register function into dictionary of new module. Returns new reference - must be decremented
+        code = PyRun_String(func_def.str().c_str(), Py_single_input, g, new_module_dict);
+        Py_XDECREF(code);
+    }
 
     return true;
 }
