@@ -17,7 +17,7 @@
 
 
 Name:           yast2-python-bindings2
-Version:        1.1
+Version:        1.2
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
