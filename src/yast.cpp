@@ -29,24 +29,6 @@ YCPTerm Opt(char * opt, ...)
     return YCPTerm("opt", l);
 }
 
-PyObject *ycp_to_pyval(YCPValue val)
-{
-    if (val->isString())
-        return PyString_FromString(val->asString()->value().c_str());
-    else if (val->isInteger())
-        return PyInt_FromLong(val->asInteger()->value());
-    else if (val->isBoolean())
-        return PyBool_FromLong(val->asBoolean()->value());
-    else if (val->isVoid())
-        Py_RETURN_NONE;
-    else if (val->isFloat())
-        return PyFloat_FromDouble(val->asFloat()->value());
-    else if (val->isSymbol())
-        return PyString_FromString(val->asSymbol()->symbol().c_str());
-    else
-        Py_RETURN_NONE;
-}
-
 static Y2Namespace * getNs(const char * ns_name)
 {
     Import import(ns_name); // has a static cache
@@ -133,8 +115,8 @@ static bool RegFunctions(const string & NameSpace, YCPList list_functions, YCPLi
         stringstream func_def;
         func_def << "def " << function << "(*args):" << endl;
         func_def << "\tfrom ycp2 import CallYCPFunction" << endl;
-        func_def << "\tfrom ytypes import pytval_to_ycp, ycp_to_pyval" << endl;
-        func_def << "\treturn ycp_to_pyval(CallYCPFunction(\"" + string(NameSpace) + "\", \"" + function + "\", pytval_to_ycp(list(args))))" << endl;
+        func_def << "\tfrom ytypes import pytval_to_ycp" << endl;
+        func_def << "\treturn CallYCPFunction(\"" + string(NameSpace) + "\", \"" + function + "\", pytval_to_ycp(list(args)))" << endl;
 
         // Register function into dictionary of new module. Returns new reference - must be decremented
         code = PyRun_String(func_def.str().c_str(), Py_single_input, g, new_module_dict);

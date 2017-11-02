@@ -6,7 +6,7 @@ python_PYTHON = ycp2.py yast.py ytypes.py
 
 pyexec_LTLIBRARIES = _ycp2.la
 
-_ycp2_la_SOURCES = yast-core_wrap.cxx yast.cpp yast-core.i
+_ycp2_la_SOURCES = yast-core_wrap.cxx yast.cpp yast-core.i ytypes.cpp
 
 libpy2UIdir = /usr/lib64/YaST2/plugin
 

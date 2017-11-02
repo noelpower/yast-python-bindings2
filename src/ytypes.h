@@ -22,17 +22,5 @@
 #include <yui/YSettings.h>
 #include <Python.h>
 
-#include <string>
-#include <cstdarg>
-#include <sstream>
-using namespace std;
-
-YCPValue CallYCPFunction(const char * namespace_name, const char * function_name, YCPList args);
-bool import_module(const string & ns_name);
-
-void startup_yuicomponent();
-void shutdown_yuicomponent();
-
-YCPTerm Id(string id);
-YCPTerm Opt(char * opt, ...);
+PyObject *ycp_to_pyval(YCPValue val);
 

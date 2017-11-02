@@ -5,7 +5,6 @@ from ycp2 import YCPTerm as Term
 from ycp2 import YCPInteger as Integer
 from ycp2 import YCPBoolean as Boolean
 from ycp2 import YCPFloat as Float
-from ycp2 import ycp_to_pyval as c_ycp_to_pyval
 
 def pytval_to_ycp(item):
     if type(item) is list:
@@ -25,8 +24,4 @@ def pytval_to_ycp(item):
         return item
     else:
         raise SyntaxError, 'Type of value "%s" unrecognized, %s' % (item, str(type(item)))
-
-def ycp_to_pyval(item):
-    val = c_ycp_to_pyval(item)
-    return val if val is not None else item
 
