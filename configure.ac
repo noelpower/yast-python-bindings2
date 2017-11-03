@@ -10,10 +10,9 @@ AM_PROG_AR
 LT_INIT
 AC_PROG_CXX
 
-# need to find this dir, is there some automake support for yast ?
-py2langconfig_dir=/usr/lib64/YaST2/plugin
-AC_SUBST([py2langdir], [$py2langconfig_dir])
-AC_SUBST([pkgpy2langdir], [\${py2langconfig_dir}])
+yast_plugin_dir=${libdir}/YaST2/plugin
+AC_SUBST([py2langdir], [$yast_plugin_dir])
+AC_SUBST([pkgpy2langdir], [\${yast_plugin_dir}])
 
 AC_CONFIG_FILES([
  Makefile
