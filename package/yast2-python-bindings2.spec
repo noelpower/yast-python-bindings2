@@ -38,6 +38,7 @@ BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  python
 BuildRequires:  python-devel
+BuildRequires:  libyui-devel >= 3.3.0
 
 Requires:       yast2-ycp-ui-bindings
 Requires:	    yast2-core
