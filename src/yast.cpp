@@ -1,8 +1,5 @@
 #include "yast.h"
 
-YCPList * ycpListFunctions;
-YCPList * ycpListVariables;
-
 YCPTerm Id(string id)
 {
     auto l = YCPList();
@@ -86,75 +83,22 @@ static PyMethodDef new_module_methods[] =
     {NULL, NULL, 0, NULL}
 };
 
-/**
- * Register functions and variables from namespace to python module
- * @param char *NameSpace - name of namespace
- * @param YCPList list_functions - names of functions
- * @param YCPList list_variables - names of variables
- * @return true on success
- */
-static bool RegFunctions(const string & NameSpace, YCPList list_functions, YCPList list_variables)
-{
-    // Init new module with name NameSpace and method __run (see new_module_methods)
-    PyObject *new_module = Py_InitModule(NameSpace.c_str(), new_module_methods);
-    if (new_module == NULL) return false;
-
-    // Dictionary of new_module - there will be registered all functions
-    PyObject *new_module_dict = PyModule_GetDict(new_module);
-    if (new_module_dict == NULL) return false;
-
-    PyObject *code;
-    auto g = PyDict_New();
-    if (!g)
-        return NULL;
-    PyDict_SetItemString(g, "__builtins__", PyEval_GetBuiltins());
-
-    // register functions from ycp to python module 
-    for (int i=0; i<list_functions.size();i++) {
-        string function = list_functions->value(i)->asString()->value();
-        stringstream func_def;
-        func_def << "def " << function << "(*args):" << endl;
-        func_def << "\tfrom ycp2 import CallYCPFunction" << endl;
-        func_def << "\tfrom ytypes import pytval_to_ycp" << endl;
-        func_def << "\treturn CallYCPFunction(\"" + string(NameSpace) + "\", \"" + function + "\", pytval_to_ycp(list(args)))" << endl;
-
-        // Register function into dictionary of new module. Returns new reference - must be decremented
-        code = PyRun_String(func_def.str().c_str(), Py_single_input, g, new_module_dict);
-        Py_XDECREF(code);
-    }
-
-    // adding variables like function from ycp to module
-    for (int i=0; i<list_variables.size();i++) {
-        string function = list_variables->value(i)->asString()->value();
-        stringstream func_def;
-        func_def << "def " << function << "(val=None):" << endl;
-        func_def << "\tfrom ycp2 import GetYCPVariable, SetYCPVariable" << endl;
-        func_def << "\tif val:" << endl;
-        func_def << "\t\tSetYCPVariable(\"" + string(NameSpace) + "\", \"" + function + "\", pytval_to_ycp(val))" << endl;
-        func_def << "\telse:" << endl;
-        func_def << "\t\treturn GetYCPVariable(\"" + string(NameSpace) + "\", \"" + function + "\")" << endl;
-
-        // Register function into dictionary of new module. Returns new reference - must be decremented
-        code = PyRun_String(func_def.str().c_str(), Py_single_input, g, new_module_dict);
-        Py_XDECREF(code);
-    }
-
-    return true;
-}
+YCPList * list_functions;
+YCPList * list_variables;
 
 /**
  * Function check SymbolEntry and add name
- * to ycpListFunctions if it is function or
- * add it to ycpListVariables if it is variable
+ * to list_functions if it is function or
+ * add it to list_variables if it is variable
  * @param const SymbolEntry for analyse
  * @return bool always return true
  */
 static bool HandleSymbolTable (const SymbolEntry & se)
 {
     if (se.isFunction ()) {
-        ycpListFunctions->add(YCPString(se.name()));
+        list_functions->add(YCPString(se.name()));
     } else if (se.isVariable ()) {
-        ycpListVariables->add(YCPString(se.name()));
+        list_variables->add(YCPString(se.name()));
     }
     return true;
 }
@@ -168,14 +112,71 @@ static bool HandleSymbolTable (const SymbolEntry & se)
 bool import_module(const string & ns_name)
 {
     Y2Namespace *ns = getNs(ns_name.c_str());
-    ycpListFunctions = new YCPList();
-    ycpListVariables = new YCPList();
 
-    ns->table()->forEach (&HandleSymbolTable);
-    RegFunctions(ns_name, *ycpListFunctions, *ycpListVariables);
+    // Init new module with name NameSpace and method __run (see new_module_methods)
+    PyObject *new_module = Py_InitModule(ns_name.c_str(), new_module_methods);
+    if (new_module == NULL) return false;
 
-    delete ycpListFunctions;
-    delete ycpListVariables;
+    // Dictionary of new_module - there will be registered all functions
+    PyObject *new_module_dict = PyModule_GetDict(new_module);
+    if (new_module_dict == NULL) return false;
+
+    PyObject *code;
+    auto g = PyDict_New();
+    if (!g) return false;
+    PyDict_SetItemString(g, "__builtins__", PyEval_GetBuiltins());
+
+    list_functions = new YCPList();
+    list_variables = new YCPList();
+    ns->table()->forEach(&HandleSymbolTable);
+
+    // register functions from ycp to python module 
+    for (int i = 0; i < list_functions->size(); i++) {
+        string function = list_functions->value(i)->asString()->value();
+        stringstream func_def;
+        func_def << "def " << function << "(*args):" << endl;
+        TableEntry *sym_te = ns->table()->find(function.c_str());
+        if (sym_te != NULL) {
+            SymbolEntryPtr sym_entry = sym_te->sentry();
+            constFunctionTypePtr fun_type = (constFunctionTypePtr)sym_entry->type();
+
+            func_def << "\t\"\"\"" << endl;
+            func_def << "\t" << function << "(";
+            for (int i = 0; i < fun_type->parameterCount(); i++) {
+                func_def << fun_type->parameterType(i)->toString();
+                if (i != fun_type->parameterCount()-1)
+                    func_def << ", ";
+            }
+            func_def << ")" << endl;
+            func_def << "\t\"\"\"" << endl;
+        }
+        func_def << "\tfrom ycp2 import CallYCPFunction" << endl;
+        func_def << "\tfrom ytypes import pytval_to_ycp" << endl;
+        func_def << "\treturn CallYCPFunction(\"" + ns_name + "\", \"" + function + "\", pytval_to_ycp(list(args)))" << endl;
+
+        // Register function into dictionary of new module. Returns new reference - must be decremented
+        code = PyRun_String(func_def.str().c_str(), Py_single_input, g, new_module_dict);
+        Py_XDECREF(code);
+    }
+
+    // adding variables like function from ycp to module
+    for (int i = 0; i < list_variables->size(); i++) {
+        string function = list_variables->value(i)->asString()->value();
+        stringstream func_def;
+        func_def << "def " << function << "(val=None):" << endl;
+        func_def << "\tfrom ycp2 import GetYCPVariable, SetYCPVariable" << endl;
+        func_def << "\tif val:" << endl;
+        func_def << "\t\tSetYCPVariable(\"" + ns_name + "\", \"" + function + "\", pytval_to_ycp(val))" << endl;
+        func_def << "\telse:" << endl;
+        func_def << "\t\treturn GetYCPVariable(\"" + ns_name + "\", \"" + function + "\")" << endl;
+
+        // Register function into dictionary of new module. Returns new reference - must be decremented
+        code = PyRun_String(func_def.str().c_str(), Py_single_input, g, new_module_dict);
+        Py_XDECREF(code);
+    }
+
+    delete list_functions;
+    delete list_variables;
 
     return true;
 }
