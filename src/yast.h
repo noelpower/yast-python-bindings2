@@ -32,9 +32,6 @@ void SetYCPVariable(const string & namespace_name, const string & variable_name,
 YCPValue GetYCPVariable(const string & namespace_name, const string & variable_name);
 bool import_module(const string & ns_name);
 
-void startup_yuicomponent();
-void shutdown_yuicomponent();
-
 YCPTerm Id(string id);
 YCPTerm Opt(char * opt, ...);
 
