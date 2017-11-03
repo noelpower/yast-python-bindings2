@@ -126,4 +126,6 @@ _ycp2.la
 _ycp2_la*
 yast-core_wrap.cxx
 ycp2.py
-
+*.o
+*.lo
+*.la
