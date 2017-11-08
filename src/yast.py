@@ -944,3 +944,19 @@ def HMultiProgressMeter(*args):
     """
     return run('HMultiProgressMeter', *args)
 
+def Cell(*args):
+    return run('Cell', *args)
+def Center(*args):
+    return run('Center', *args)
+def ColoredLabel(*args):
+    return run('ColoredLabel', *args)
+def Dummy(*args):
+    return run('Dummy', *args)
+def DummySpecialWidget(*args):
+    return run('DummySpecialWidget', *args)
+def HVStretch(*args):
+    return run('HVStretch', *args)
+def IconButton(*args):
+    return run('IconButton', *args)
+def PkgSpecial(*args):
+    return run('PkgSpecial', *args)
