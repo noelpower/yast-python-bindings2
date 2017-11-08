@@ -40,6 +40,9 @@ def run(func, *args):
         l.push_back(pytval_to_ycp(item))
     return Term(func, l)
 
+def meta_func_creator(func):
+    return (lambda *args : run(func, *args))
+
 current_module = __import__(__name__)
 meta_funcs = [
       'BarGraph',
@@ -119,4 +122,4 @@ meta_funcs = [
 
 for func in meta_funcs:
     #print "adding %s"%func
-    setattr(current_module, func, (lambda *args : run(func, *args)))
+    setattr(current_module, func, meta_func_creator(func))
